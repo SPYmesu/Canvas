@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/ThreadSafeLegacyRandomSource.java
++++ b/net/minecraft/world/level/levelgen/ThreadSafeLegacyRandomSource.java
+@@ -28,7 +_,7 @@
+ 
+     @Override
+     public void setSeed(final long seed) {
+-        this.seed.set((seed ^ 25214903917L) & 281474976710655L);
++        this.seed.set((io.canvasmc.canvas.util.WorldSeedObfuscator.obfuscate(seed) ^ 25214903917L) & 281474976710655L);
+     }
+ 
+     @Override

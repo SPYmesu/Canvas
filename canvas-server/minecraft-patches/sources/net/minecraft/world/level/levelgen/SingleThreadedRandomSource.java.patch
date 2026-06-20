@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/SingleThreadedRandomSource.java
++++ b/net/minecraft/world/level/levelgen/SingleThreadedRandomSource.java
+@@ -27,7 +_,7 @@
+ 
+     @Override
+     public void setSeed(final long seed) {
+-        this.seed = (seed ^ 25214903917L) & 281474976710655L;
++        this.seed = (io.canvasmc.canvas.util.WorldSeedObfuscator.obfuscate(seed) ^ 25214903917L) & 281474976710655L;
+         if (this.gaussianSource != null) {
+             this.gaussianSource.reset();
+         }

@@ -1,0 +1,12 @@
+--- a/net/minecraft/world/level/levelgen/LegacyRandomSource.java
++++ b/net/minecraft/world/level/levelgen/LegacyRandomSource.java
+@@ -30,7 +_,8 @@
+ 
+     @Override
+     public void setSeed(final long seed) {
+-        if (!this.seed.compareAndSet(this.seed.get(), (seed ^ 25214903917L) & 281474976710655L)) {
++        final long obfuscated = io.canvasmc.canvas.util.WorldSeedObfuscator.obfuscate(seed);
++        if (!this.seed.compareAndSet(this.seed.get(), (obfuscated ^ 25214903917L) & 281474976710655L)) {
+             throw ThreadingDetector.makeThreadingException("LegacyRandomSource", null);
+         }
+ 
