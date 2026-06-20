@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/levelgen/RandomSupport.java
++++ b/net/minecraft/world/level/levelgen/RandomSupport.java
+@@ -27,7 +_,7 @@
+     }
+ 
+     public static RandomSupport.Seed128bit upgradeSeedTo128bit(final long legacySeed) {
+-        return upgradeSeedTo128bitUnmixed(legacySeed).mixed();
++        return upgradeSeedTo128bitUnmixed(io.canvasmc.canvas.util.WorldSeedObfuscator.obfuscate(legacySeed)).mixed();
+     }
+ 
+     public static RandomSupport.Seed128bit seedFromHashOf(final String input) {
