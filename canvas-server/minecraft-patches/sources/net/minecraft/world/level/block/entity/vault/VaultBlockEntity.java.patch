@@ -1,0 +1,22 @@
+--- a/net/minecraft/world/level/block/entity/vault/VaultBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/vault/VaultBlockEntity.java
+@@ -226,6 +_,7 @@
+         private static final int UNLOCKING_DELAY_TICKS = 14;
+         private static final int DISPLAY_CYCLE_TICK_RATE = 20;
+         private static final int INSERT_FAIL_SOUND_BUFFER_TICKS = 15;
++        private static final long MAX_STATE_UPDATE_PAUSE_TICKS = 20L; // Canvas - MC-268618 - longest pause the vault ever schedules
+ 
+         public static void tick(
+             final ServerLevel serverLevel,
+@@ -241,6 +_,11 @@
+             }
+ 
+             BlockState nextBlockState = blockState;
++            // Canvas start - MC-268618 - self-heal corrupt future state-update stamps from regionized game-time desync
++            if (serverData.stateUpdatingResumesAt() > serverLevel.getGameTime() + MAX_STATE_UPDATE_PAUSE_TICKS) {
++                serverData.pauseStateUpdatingUntil(0L);
++            }
++            // Canvas end - MC-268618
+             if (serverLevel.getGameTime() >= serverData.stateUpdatingResumesAt()) {
+                 nextBlockState = nextBlockState.setValue(VaultBlock.STATE, currentState.tickAndGetNext(serverLevel, pos, config, serverData, sharedData));
+                 if (blockState != nextBlockState) {
