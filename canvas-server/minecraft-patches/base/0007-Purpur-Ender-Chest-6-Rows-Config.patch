@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Dueris <duerismc@gmail.com>
-Date: Mon, 20 Apr 2026 11:21:29 -0700
+From: William Blake Galbreath <blake.galbreath@gmail.com>
+Date: Thu, 23 May 2019 21:50:37 -0500
 Subject: [PATCH] Purpur Ender Chest 6 Rows Config
 
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 932e2ba2f7d9f13c4b7a06c34c7f86bab3bf9988..360663781feb02ba550b84acb1447d7eca2ab138 100644
+index 6c6aa26e6dc02946ee43c43f556564aa2e9c749d..51972165f77bf3cf8c1f78195aafcf9cdbed0db7 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
 @@ -947,6 +947,27 @@ public abstract class PlayerList {
