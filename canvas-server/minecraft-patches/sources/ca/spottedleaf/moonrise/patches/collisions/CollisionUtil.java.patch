@@ -1,0 +1,77 @@
+--- a/ca/spottedleaf/moonrise/patches/collisions/CollisionUtil.java
++++ b/ca/spottedleaf/moonrise/patches/collisions/CollisionUtil.java
+@@ -71,6 +_,18 @@
+             x + (16.0 + 3*COLLISION_EPSILON), Double.POSITIVE_INFINITY, z + (16.0 + 3*COLLISION_EPSILON));
+     }
+ 
++    // Canvas start - bound the chunk sweep by the ticking region
++    public static AABB getBoxForChunks(final int minChunkX, final int minChunkZ,
++                                       final int maxChunkX, final int maxChunkZ) {
++        final double minX = (double)(((long)minChunkX) << 4);
++        final double minZ = (double)(((long)minChunkZ) << 4);
++        final double maxX = (double)(((long)maxChunkX) << 4);
++        final double maxZ = (double)(((long)maxChunkZ) << 4);
++        return new AABB(minX - 3*COLLISION_EPSILON, Double.NEGATIVE_INFINITY, minZ - 3*COLLISION_EPSILON,
++            maxX + (16.0 + 3*COLLISION_EPSILON), Double.POSITIVE_INFINITY, maxZ + (16.0 + 3*COLLISION_EPSILON));
++    }
++    // Canvas end - bound the chunk sweep by the ticking region
++
+     /*
+       A couple of rules for VoxelShape collisions:
+       Two shapes only intersect if they are actually more than EPSILON units into each other. This also applies to movement
+@@ -1935,11 +_,55 @@
+         final int minChunkZ = minBlockZ >> 4;
+         final int maxChunkZ = maxBlockZ >> 4;
+ 
++        // Canvas start - bound the chunk sweep by the ticking region
++        if (minChunkX > maxChunkX || minChunkZ > maxChunkZ) {
++            if (!checkOnly) {
++                intoAABB.add(getBoxForChunks(minChunkX, minChunkZ, minChunkX, minChunkZ));
++            }
++            return true;
++        }
++
++        final int sectionChunkShift = ((net.minecraft.server.level.ServerLevel)world).regioniser.sectionChunkShift;
++        final int sectionChunkMask = (1 << sectionChunkShift) - 1;
++        // Canvas end - bound the chunk sweep by the ticking region
++
+         final boolean loadChunks = (collisionFlags & COLLISION_FLAG_LOAD_CHUNKS) != 0;
+         final ChunkSource chunkSource = world.getChunkSource();
+ 
+         for (int currChunkZ = minChunkZ; currChunkZ <= maxChunkZ; ++currChunkZ) {
+             for (int currChunkX = minChunkX; currChunkX <= maxChunkX; ++currChunkX) {
++                // Canvas start - bound the chunk sweep by the ticking region
++                if (currChunkX == minChunkX || (currChunkX & sectionChunkMask) == 0) {
++                    int lastForeignChunkX = currChunkX - 1;
++                    for (int sectionOriginX = currChunkX & ~sectionChunkMask; sectionOriginX <= maxChunkX;) {
++                        if (ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(world, sectionOriginX, currChunkZ, sectionOriginX, currChunkZ)) {
++                            break;
++                        }
++                        lastForeignChunkX = Math.min(maxChunkX, sectionOriginX | sectionChunkMask);
++                        final int nextSectionOriginX = sectionOriginX + sectionChunkMask + 1;
++                        if (nextSectionOriginX < sectionOriginX) {
++                            break;
++                        }
++                        sectionOriginX = nextSectionOriginX;
++                    }
++                    if (lastForeignChunkX >= currChunkX) {
++                        if (checkOnly) {
++                            return true;
++                        }
++                        final int lastChunkZ = currChunkX == minChunkX && lastForeignChunkX == maxChunkX
++                            ? Math.min(maxChunkZ, currChunkZ | sectionChunkMask)
++                            : currChunkZ;
++                        intoAABB.add(getBoxForChunks(currChunkX, currChunkZ, lastForeignChunkX, lastChunkZ));
++                        ret = true;
++                        if (lastChunkZ != currChunkZ) {
++                            currChunkZ = lastChunkZ;
++                            break;
++                        }
++                        currChunkX = lastForeignChunkX;
++                        continue;
++                    }
++                }
++                // Canvas end - bound the chunk sweep by the ticking region
+                 // Folia start - region threading
+                 if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(world, currChunkX, currChunkZ, 4)) {
+                     if (checkOnly) {
