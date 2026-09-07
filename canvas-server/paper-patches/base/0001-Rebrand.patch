@@ -5,7 +5,7 @@ Subject: [PATCH] Rebrand
 
 
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index 9f4d73fd321f6f0cd19fdd1b63068d2ea6c0816b..5421a90b3713e36dc536974d76fc39beb382008c 100644
+index 9f4d73fd321f6f0cd19fdd1b63068d2ea6c0816b..211c945235dcb6b2e156748ab466b80981930d59 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
 +++ b/src/main/java/com/destroystokyo/paper/Metrics.java
 @@ -593,7 +593,7 @@ public class Metrics {
@@ -17,23 +17,30 @@ index 9f4d73fd321f6f0cd19fdd1b63068d2ea6c0816b..5421a90b3713e36dc536974d76fc39be
  
                  metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
                      String minecraftVersion = Bukkit.getVersion();
-@@ -607,11 +607,17 @@ public class Metrics {
+@@ -606,12 +606,23 @@ public class Metrics {
+                 final String paperVersion;
                  final String implVersion = org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion();
                  if (implVersion != null) {
-                     final String buildOrHash = implVersion.substring(implVersion.lastIndexOf('-') + 1);
+-                    final String buildOrHash = implVersion.substring(implVersion.lastIndexOf('-') + 1);
 -                    paperVersion = "git-Paper-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash);
-+                    // Canvas start - new versioning schem for bstats
++                    // Canvas start - Rebrand - new versioning schem for bstats
 +                    io.papermc.paper.ServerBuildInfo buildInfo = io.papermc.paper.ServerBuildInfo.buildInfo();
 +                    final int num = buildInfo.buildNumber().orElse(-1);
 +                    paperVersion = "Canvas-V3-" +
 +                        buildInfo.minecraftVersionName() + "-" +
 +                        (num != -1 ? num : "DEV");
-+                    // Canvas end - new versioning schem for bstats
++                    // Canvas end - Rebrand - new versioning schem for bstats
                  } else {
                      paperVersion = "unknown";
                  }
 -                metrics.addCustomChart(new Metrics.SimplePie("paper_version", () -> paperVersion));
-+                metrics.addCustomChart(new Metrics.SimplePie("canvas_version", () -> paperVersion)); // Canvas - Rebrand
++                // Canvas start - Rebrand
++                metrics.addCustomChart(new Metrics.SimplePie("canvas_version", () -> paperVersion));
++                final io.papermc.paper.configuration.GlobalConfiguration paperGlobal = io.papermc.paper.configuration.GlobalConfiguration.get();
++                if (paperGlobal != null) {
++                    metrics.addCustomChart(new Metrics.SimplePie("scheduler_type", () -> paperGlobal.threadedRegions.scheduler.name()));
++                }
++                // Canvas end - Rebrand
  
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
@@ -51,10 +58,10 @@ index 43006c22f26b9b3ff83d6d9511a8f29921b7f46d..dfefac3406280a50bc7a2b6cecd1e024
                  .completer(new ConsoleCommandCompleter(this.server))
                  .option(LineReader.Option.COMPLETE_IN_WORD, true);
 diff --git a/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java b/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java
-index f4d5123d9488ff066032575de85fde2a1006a118..3fcdea18a3eed08fb7eec2bf81cd52321d120989 100644
+index 06c0dbd4099604db151b7651c93149a53143ba5f..401e4dedd4bb50fd22963d69eecf03155c5f3943 100644
 --- a/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java
 +++ b/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java
-@@ -181,7 +181,7 @@ public class PaperServerInternalAPIBridge implements InternalAPIBridge {
+@@ -188,7 +188,7 @@ public class PaperServerInternalAPIBridge implements InternalAPIBridge {
  
      @Override
      public VersionFetcher getVersionFetcher() {
