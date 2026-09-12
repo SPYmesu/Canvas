@@ -6,7 +6,7 @@
          LEGACY_GAME_TYPE_CODEC.fieldOf("game_type").forGetter(levelOverrides -> levelOverrides.gameType),
 -        LevelSettings.DifficultySettings.CODEC.fieldOf("difficulty_settings").forGetter(levelOverrides -> levelOverrides.difficultySettings)
 +        LevelSettings.DifficultySettings.CODEC.fieldOf("difficulty_settings").forGetter(levelOverrides -> levelOverrides.difficultySettings),
-+        io.canvasmc.canvas.world.PerWorldDistanceConfig.CODEC.fieldOf("Canvas.Distance").forGetter(levelOverrides -> levelOverrides.canvas$distanceConfig) // Canvas - per world distance
++        io.canvasmc.canvas.world.PerWorldDistanceConfig.CODEC.optionalFieldOf("Canvas.Distance", io.canvasmc.canvas.world.PerWorldDistanceConfig.DEFAULT).forGetter(levelOverrides -> levelOverrides.canvas$distanceConfig) // Canvas - per world distance; worlds saved by Paper have no such key
      ).apply(instance, PaperLevelOverrides::new));
      public static final SavedDataType<PaperLevelOverrides> TYPE = new SavedDataType<>(
          Identifier.fromNamespaceAndPath(Identifier.PAPER_NAMESPACE, "level_overrides"),
