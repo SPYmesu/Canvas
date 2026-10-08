@@ -1,5 +1,26 @@
 --- a/io/papermc/paper/threadedregions/RegionShutdownThread.java
 +++ b/io/papermc/paper/threadedregions/RegionShutdownThread.java
+@@ -115,12 +_,19 @@
+ 
+     public void saveRegionChunks(final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region,
+                                   final boolean last) {
++        // Canvas start - honour the unload save flag
++        this.saveRegionChunks(region, last, true);
++    }
++
++    public void saveRegionChunks(final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData> region,
++                                  final boolean last, final boolean save) {
++        // Canvas end - honour the unload save flag
+         ChunkPos center = null;
+         try {
+             this.shuttingDown = region;
+             center = region.getCenterChunk();
+             LOGGER.info("Saving chunks around region around chunk {} in world '{}'", center, region.regioniser.world.getWorld().getName());
+-            region.regioniser.world.moonrise$getChunkTaskScheduler().chunkHolderManager.close(true, true, false, last, false);
++            region.regioniser.world.moonrise$getChunkTaskScheduler().chunkHolderManager.close(save, true, false, last, false); // Canvas - honour the unload save flag
+         } catch (final Throwable thrown) {
+             LOGGER.error("Failed to save chunks for region around chunk {} in world '{}'", center, region.regioniser.world.getWorld().getName(), thrown);
+         } finally {
 @@ -157,6 +_,7 @@
                          player.containerMenu.setCarried(ItemStack.EMPTY);
                          player.drop(carried, false, Prediction.SERVER_ONLY);

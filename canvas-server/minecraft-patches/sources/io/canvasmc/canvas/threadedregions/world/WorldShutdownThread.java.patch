@@ -1,0 +1,26 @@
+--- a/io/canvasmc/canvas/threadedregions/world/WorldShutdownThread.java
++++ b/io/canvasmc/canvas/threadedregions/world/WorldShutdownThread.java
+@@ -171,11 +_,13 @@
+         // we don't need to do inventory closing, there should be no players here
+         // so we skip to saving the regions in the world
+ 
++        final boolean save = this.level.canvas$unloadTicket.getOrThrow().save(); // Canvas - honour the unload save flag
++
+         try {
+             for (int i = 0; i < regions.size(); i++) {
+                 final ThreadedRegionizer.ThreadedRegion<TickRegions.TickRegionData, TickRegions.TickRegionSectionData>
+                     region = regions.get(i);
+-                saveRegionChunks(region, (i + 1) == regions.size());
++                saveRegionChunks(region, (i + 1) == regions.size(), save); // Canvas - honour the unload save flag
+             }
+         } catch (final Throwable thrown) {
+             LOGGER.error("Failed to save chunks in {}", getWorldName(), thrown);
+@@ -186,7 +_,7 @@
+ 
+         // now we save level data and force pearl data save
+ 
+-        saveLevelData(this.level);
++        if (save) saveLevelData(this.level); // Canvas - honour the unload save flag
+         this.level.getChunkSource().getDataStorage().close();
+ 
+         LOGGER.info("Saved {} level data", getWorldName());
