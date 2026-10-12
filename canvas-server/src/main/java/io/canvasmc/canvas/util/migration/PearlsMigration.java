@@ -1,5 +1,6 @@
 package io.canvasmc.canvas.util.migration;
 
+import com.mojang.logging.LogUtils;
 import io.papermc.paper.world.migration.WorldMigrationContext;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,8 +11,11 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.storage.LevelResource;
+import org.slf4j.Logger;
 
 public class PearlsMigration implements Migration {
+
+    private static final Logger LOGGER = LogUtils.getClassLogger();
 
     public static final Path OLD_PATH = Path.of("pearls.dat").toAbsolutePath().normalize();
 
@@ -72,7 +76,16 @@ public class PearlsMigration implements Migration {
         try {
             return !isModernPearlsTag(NbtIo.readCompressed(path, NbtAccounter.unlimitedHeap()));
         } catch (final IOException ioe) {
-            throw new RuntimeException("Couldn't read pearl data for migration", ioe);
+            // A file cut short by an interrupted save (crash, killed container) must not block startup: pearl data
+            // only tracks pearls in flight, so the broken file is set aside and the level starts with fresh data
+            final Path aside = path.resolveSibling(path.getFileName() + ".corrupt-" + System.currentTimeMillis());
+            LOGGER.warn("Pearl data {} is unreadable ({}), moving it to {} and starting fresh", path, ioe.getMessage(), aside);
+            try {
+                Files.move(path, aside);
+            } catch (final IOException moveFailure) {
+                throw new RuntimeException("Couldn't set aside unreadable pearl data " + path, moveFailure);
+            }
+            return false;
         }
     }
 
