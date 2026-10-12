@@ -113,10 +113,10 @@ index 0000000000000000000000000000000000000000..dd06d415d7c6c8138be3cbf170f63d58
 +    }
 +}
 diff --git a/io/papermc/paper/threadedregions/RegionizedWorldData.java b/io/papermc/paper/threadedregions/RegionizedWorldData.java
-index 3865b2c3f53bde4d39eca4f887ac4755cc8355b1..e54651499606a90a3c8d25a13ed457acb258d29b 100644
+index a6a16ed8db143f16f7cd010a33a07d5292277178..4331f5b59db7a0b64b7be6703d70590e69b2deef 100644
 --- a/io/papermc/paper/threadedregions/RegionizedWorldData.java
 +++ b/io/papermc/paper/threadedregions/RegionizedWorldData.java
-@@ -329,6 +329,20 @@ public final class RegionizedWorldData {
+@@ -352,6 +352,20 @@ public final class RegionizedWorldData {
      };
  
      public final ServerLevel world;
