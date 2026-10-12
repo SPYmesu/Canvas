@@ -36,6 +36,28 @@
      }
  
      private void saveParentVehicle(final ValueOutput playerOutput) {
+@@ -1045,7 +_,13 @@
+         }
+     }
+ 
++    // Canvas start - region threading
++    // whether this player is inside its own tick: a cross-region teleport started from here is deferred, see Entity#teleportAsync$internal
++    public boolean canvas$inPlayerTick;
++    // Canvas end - region threading
++
+     public void doTick() {
++        this.canvas$inPlayerTick = true; // Canvas - region threading
+         try {
+             if (this.valid && (!this.isSpectator() || !this.touchingUnloadedChunk())) { // Paper - don't tick dead players that are not in the world currently (pending respawn)
+                 super.tick();
+@@ -1148,6 +_,7 @@
+             this.fillCrashReportCategory(category);
+             throw new ReportedException(report);
+         }
++        finally { this.canvas$inPlayerTick = false; } // Canvas - region threading
+     }
+ 
+     private void synchronizeSpecialItemUpdates(final ItemStack itemStack) {
 @@ -1481,6 +_,7 @@
          if (killer != null) {
              this.awardStat(Stats.ENTITY_KILLED_BY.get(killer.getType()));

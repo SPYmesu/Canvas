@@ -121,3 +121,31 @@
          if (level instanceof ServerLevel serverLevel) {
              RandomSource random = level.getRandom();
  
+@@ -4864,6 +_,27 @@
+             clearRegionTransferState();
+             return AsyncTeleportResult.FAILURE;
+         } // else | we passed first go
++
++        // Canvas start - region threading
++        // A cross-region transfer moves the player out of its region at once (transformForAsyncTeleport). Started from
++        // inside the player's own tick - an event its tick fires, such as void damage - the rest of that tick would run
++        // in the old region against the new level and fail with "World mismatch". Such a transfer waits for the
++        // player's next scheduled tasks instead.
++        if (this instanceof net.minecraft.server.level.ServerPlayer tickingPlayer && tickingPlayer.canvas$inPlayerTick
++            && !this.isIsSameRegion(destination, pos, teleportFlags)) {
++            final ServerLevel deferredDestination = destination;
++            final Vec3 deferredPos = pos;
++            final Float deferredYaw = yaw;
++            final Float deferredPitch = pitch;
++            final Vec3 deferredVelocity = velocity;
++            final boolean scheduled = this.getBukkitEntity().taskScheduler.schedule(
++                (final Entity deferred) -> deferred.teleportAsync$internal(deferredDestination, deferredPos, deferredYaw,
++                    deferredPitch, deferredVelocity, cause, teleportFlags, teleportComplete, callEvents),
++                null, 1L
++            );
++            return scheduled ? AsyncTeleportResult.SUCCESS : AsyncTeleportResult.FAILURE;
++        }
++        // Canvas end - region threading
+ 
+         // TODO - all teleport events things actually go HERE
+ 
